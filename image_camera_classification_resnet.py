@@ -53,7 +53,7 @@ def predict(frame):
     return [(labels[top5_catid[i]], top5_prob[i].item()) for i in range(top5_prob.size(0))]
 
 # Open a connection to the camera
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 if not cap.isOpened():
     print("Error: Could not open video stream from camera.")
