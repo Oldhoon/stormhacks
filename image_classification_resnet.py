@@ -47,7 +47,7 @@ LABELS_URL = "https://raw.githubusercontent.com/anishathalye/imagenet-simple-lab
 labels = requests.get(LABELS_URL).json()
 
 # Predict the image and display the top 5 results
-image_path = "your_image.jpg"  # Replace with your image path
+image_path = "can.png"  # Replace with your image path
 top5_prob, top5_catid = predict(image_path)
 
 for i in range(top5_prob.size(0)):
