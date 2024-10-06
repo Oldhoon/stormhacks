@@ -70,7 +70,7 @@ def predict(frame):
     return predicted_label, top1_prob.item(), category
 
 # Open a connection to the camera
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 if not cap.isOpened():
     print("Error: Could not open video stream from camera.")
