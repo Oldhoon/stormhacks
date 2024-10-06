@@ -1,5 +1,6 @@
 import torch
 import torchvision.models as models
+from torchvision.models import EfficientNet_B0_Weights
 from torchvision import transforms
 from PIL import Image
 import cv2
@@ -7,7 +8,7 @@ import numpy as np
 import requests
 
 # Load the pre-trained EfficientNet model
-model = models.efficientnet_b0(pretrained=True)  # Using EfficientNet B0, you can change to B1, B2, etc.
+model = models.efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)  # Using EfficientNet B0, you can change to B1, B2, etc.
 model.eval()
 
 # Move model to GPU if available
@@ -76,7 +77,7 @@ while True:
     for i, (label, prob) in enumerate(predictions):
         text = f"{label}: {prob:.2f}"
         y_position = 30 + i * 30  # Adjust y_position to stack text lines vertically
-        cv2.putText(frame, text, (10, y_position), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+        cv2.putText(frame, text, (10, y_position), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
     # Display the resulting frame
     cv2.imshow('Camera', frame)
