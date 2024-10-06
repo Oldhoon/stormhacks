@@ -43,6 +43,13 @@ category_mapping = {
     "oil filter" : "container",
 }
 
+# Define custom label mapping to replace certain predictions with custom labels
+custom_label_mapping = {
+    "oil filter": "drink can",  # Replace "oil filter" with "drink can"
+    "pill bottle": "drink can",
+    "hair spray": "drink can",
+}
+
 # Function to preprocess the camera frame for the model
 def preprocess_frame(frame):
     # Convert frame from OpenCV (BGR) to PIL Image (RGB)
@@ -60,6 +67,10 @@ def categorize_prediction(predicted_label):
             return category
     return "undefined"  # Default if no match is found
 
+# Function to replace specific labels with custom labels
+def apply_custom_label_mapping(predicted_label):
+    return custom_label_mapping.get(predicted_label.lower(), predicted_label)
+
 # Function to make a prediction on the frame
 def predict(frame):
     # Preprocess the frame
@@ -72,11 +83,11 @@ def predict(frame):
     # Apply softmax to get probabilities
     probabilities = torch.nn.functional.softmax(output[0], dim=0)
 
-    # Get the top 5 predictions
-    top5_prob, top5_catid = torch.topk(probabilities, 5)
+    # Get the top 1 prediction
+    top1_prob, top1_catid = torch.topk(probabilities, 1)
     
-    # Return the top 5 predictions with labels and probabilities
-    return [(labels[top5_catid[i]], top5_prob[i].item()) for i in range(top5_prob.size(0))]
+    # Return the top 1 prediction with label and probability
+    return labels[top1_catid.item()], top1_prob.item()
 
 # Open a connection to the camera
 cap = cv2.VideoCapture(1)  # You can change the camera index if necessary
@@ -94,21 +105,20 @@ while True:
         break
 
     # Make predictions
-    predictions = predict(frame)
+    top_label, probability = predict(frame)
 
-    # Get the category based on the top prediction
-    top_label = predictions[0][0]  # Get the label of the top prediction
+    # Apply custom label mapping if necessary
+    top_label = apply_custom_label_mapping(top_label)
+
     category = categorize_prediction(top_label)  # Categorize the top prediction
 
-    # Display the top 5 predictions on the frame
-    for i, (label, prob) in enumerate(predictions):
-        text = f"{label}: {prob:.2f}"
-        y_position = 30 + i * 30  # Adjust y_position to stack text lines vertically
-        cv2.putText(frame, text, (10, y_position), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+    # Display the top prediction on the frame
+    text = f"{top_label}"
+    cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
     # Display the categorized label at the top of the frame
     category_text = f"Category: {category}"
-    cv2.putText(frame, category_text, (10, 30 + len(predictions) * 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    cv2.putText(frame, category_text, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
     # Display the resulting frame
     cv2.imshow('Camera', frame)
